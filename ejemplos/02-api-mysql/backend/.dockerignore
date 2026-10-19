@@ -1,0 +1,13 @@
+# Las dependencias se instalan DENTRO de la imagen con npm ci
+node_modules
+npm-debug.log*
+
+# Configuración local y secretos: nunca dentro de la imagen
+.env
+
+# Archivos que la aplicación no necesita para ejecutarse
+.git
+.gitignore
+Dockerfile
+.dockerignore
+*.md

@@ -1,0 +1,11 @@
+# Se instalan y compilan DENTRO de la imagen
+node_modules
+dist
+.angular
+
+# No hacen falta para compilar
+.git
+.gitignore
+*.md
+Dockerfile
+.dockerignore

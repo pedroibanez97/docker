@@ -1,0 +1,50 @@
+# Publica la presentación en GitHub Pages cada vez que hay cambios en main.
+# Solo se publican index.html, assets/ y guia/ (los ejemplos se ven en el repositorio).
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos mínimos: leer el código y publicar en Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Verificar el material (código, enlaces, ids, PDF)
+        run: node scripts/verificar.mjs
+
+      - name: Preparar el sitio
+        run: |
+          mkdir _site
+          cp -r index.html assets guia _site/
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v6
+
+      - name: Subir el sitio
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - name: Publicar
+        id: despliegue
+        uses: actions/deploy-pages@v5

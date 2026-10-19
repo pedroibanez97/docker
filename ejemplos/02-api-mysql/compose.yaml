@@ -1,0 +1,52 @@
+# Ejemplo 02: API Express + MySQL con Docker Compose
+# Uso:  1) copiar .env.example como .env   2) docker compose up -d --build
+
+name: tareas-api
+
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      # ":?" hace que Compose se detenga con un mensaje claro si la variable falta en .env
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Falta MYSQL_ROOT_PASSWORD en .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Falta MYSQL_DATABASE en .env}
+      MYSQL_USER: ${MYSQL_USER:?Falta MYSQL_USER en .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Falta MYSQL_PASSWORD en .env}
+    volumes:
+      - datos-mysql:/var/lib/mysql              # volumen con nombre: los datos sobreviven
+      - ./db/init:/docker-entrypoint-initdb.d:ro # scripts SQL de la primera inicialización
+    ports:
+      # Solo desde tu computadora (127.0.0.1) y en 3307 para no chocar con un MySQL local
+      - "127.0.0.1:3307:3306"
+    networks:
+      - red-app
+    healthcheck:
+      # "Listo" = el servidor definitivo acepta conexiones TCP (no valida usuario ni clave)
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 3000
+      DB_HOST: db            # nombre del servicio, NO localhost
+      DB_PORT: 3306          # puerto interno de MySQL, NO el publicado
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+    ports:
+      - "3000:3000"
+    networks:
+      - red-app
+    depends_on:
+      db:
+        condition: service_healthy  # espera a que el healthcheck de db pase
+
+volumes:
+  datos-mysql:
+
+networks:
+  red-app:

@@ -1,0 +1,63 @@
+# Ejemplo 03: configuración de PRODUCCIÓN (didáctica)
+# - No compila nada: usa imágenes ya construidas y publicadas en un registro.
+# - La base de datos NO se publica: solo la ve el backend por la red interna.
+# - La web queda en 127.0.0.1:8080; en un servidor real, un proxy inverso con HTTPS
+#   (Caddy, Nginx, Traefik...) recibe el tráfico público en el 443 y lo reenvía acá.
+# Uso:  docker compose -f compose.prod.yaml --env-file .env.prod up -d
+
+name: tareas-prod
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Falta MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Falta MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER:?Falta MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Falta MYSQL_PASSWORD}
+    volumes:
+      - datos-mysql:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - red-app
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  backend:
+    image: ${IMAGEN_BACKEND:?Falta IMAGEN_BACKEND}
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+    networks:
+      - red-app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: ${IMAGEN_FRONTEND:?Falta IMAGEN_FRONTEND}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      - red-app
+    depends_on:
+      backend:
+        condition: service_started
+        restart: true
+
+volumes:
+  datos-mysql:
+
+networks:
+  red-app:
