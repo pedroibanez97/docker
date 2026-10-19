@@ -1,46 +1,38 @@
 # Proyecto base · Biblioteca API
 
-API REST de una biblioteca hecha con **Node.js + Express 5 + MySQL**. Funciona sin Docker: tu tarea es dockerizarla siguiendo la [consigna de la práctica](../README.md) (camino B).
+Una API chica de biblioteca hecha con **Node.js + Express + MySQL**, todavía **sin Docker**. Es la alternativa para la [práctica final](../README.md) si no podés usar tu propio proyecto.
 
-## Endpoints
+## Qué tiene
 
-| Método | Ruta | Descripción |
+```
+proyecto-base/
+├── package.json · package-lock.json
+├── db/esquema.sql      # crea la base "biblioteca" con 4 libros
+└── src/
+    ├── index.js        # servidor Express (puerto 3000)
+    ├── db.js           # conexión a MySQL (lee process.env)
+    └── rutas/libros.js
+```
+
+| Método | Ruta | Qué hace |
 |---|---|---|
-| GET | `/api/salud` | Estado de la API y de la conexión a MySQL |
-| GET | `/api/libros` | Lista de libros |
+| GET | `/api/salud` | Dice si la API llega a MySQL |
+| GET | `/api/libros` | Lista los libros |
 | GET | `/api/libros/:id` | Un libro |
-| POST | `/api/libros` | Alta de un libro: `{ "titulo": "...", "autor": "...", "anio": 1956 }` |
-
-## Variables de entorno que lee
-
-| Variable | Valor por defecto | Uso |
-|---|---|---|
-| `PORT` | `3000` | Puerto donde escucha Express |
-| `DB_HOST` | `localhost` | Servidor MySQL |
-| `DB_PORT` | `3306` | Puerto de MySQL |
-| `DB_USER` | *(sin valor)* | Usuario de MySQL |
-| `DB_PASSWORD` | *(sin valor)* | Contraseña |
-| `DB_NAME` | `biblioteca` | Base de datos |
-
-## Correr SIN Docker (opcional, para conocer el proyecto)
-
-Requiere Node.js 20.6 o superior y MySQL instalado.
-
-1. Ejecutar `db/esquema.sql` en tu MySQL (crea la base `biblioteca` con datos de ejemplo).
-2. `cp .env.example .env` y completar usuario y contraseña.
-3. `npm install`
-4. `npm run dev` y abrir <http://localhost:3000/api/libros>.
+| POST | `/api/libros` | Agrega un libro: `{ "titulo": "...", "autor": "...", "anio": 1956 }` |
 
 ## Lo que tenés que agregar
 
-- `Dockerfile` y `.dockerignore`.
-- `compose.yaml` con los servicios de la API y de MySQL, volumen, red y healthcheck.
-- Variables de entorno para Docker (`.env` ignorado y `.env.example` sin secretos reales).
-- Tu README con las instrucciones (podés partir de la [plantilla](../PLANTILLA-README.md)).
+Seguí los mismos pasos que en la clase con la carpeta [`ejemplo`](../../ejemplo/):
 
-### Pistas
+- `Dockerfile` y `.dockerignore` (en esta carpeta).
+- `compose.yaml` con la API y MySQL.
+- `.env.example` (y tu `.env`, que no se sube).
 
-- ¿Qué valor tiene que tener `DB_HOST` dentro de Compose? ¿Por qué el valor por defecto `localhost` no sirve ahí?
-- `db/esquema.sql` puede usarse como script de inicialización. ¿En qué carpeta del contenedor de MySQL tiene que estar?
-- El script crea la base `biblioteca`. Usá ese mismo nombre en `MYSQL_DATABASE` para que tu usuario tenga permisos sobre ella.
-- `npm run dev` usa `--env-file=.env`. Dentro del contenedor, ¿de dónde salen las variables? ¿Qué script conviene usar en el `CMD`?
+## Pistas
+
+- La conexión usa `DB_HOST`, `DB_USER`, `DB_PASSWORD` y `DB_NAME`. ¿Qué valor va en `DB_HOST` dentro de Compose?
+- El script `db/esquema.sql` crea la base `biblioteca`: usá `DB_NAME=biblioteca` en tu `.env`.
+- El script ya está en una carpeta `db/`, igual que en el ejemplo.
+- Acá el backend es esta misma carpeta: en `compose.yaml` cambiá `build: ./backend` por `build: .`
+- Si todo anda, `GET /api/libros` devuelve 4 libros.

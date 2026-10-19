@@ -1,0 +1,20 @@
+# Configuración local y secretos: NUNCA se suben
+.env
+.env.*
+!.env.example
+!.env.prod.example
+
+# Dependencias y compilados
+node_modules/
+dist/
+.angular/
+
+# Archivos del sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Copias de seguridad generadas en las prácticas
+*.sql.bak
+backup*.sql

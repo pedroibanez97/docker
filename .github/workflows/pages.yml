@@ -1,5 +1,5 @@
 # Publica la presentación en GitHub Pages cada vez que hay cambios en main.
-# Solo se publican index.html, assets/ y guia/ (los ejemplos se ven en el repositorio).
+# Se publican la versión práctica (raíz) y la versión completa (/version-completa/).
 name: Publicar en GitHub Pages
 
 on:
@@ -29,13 +29,17 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Verificar el material (código, enlaces, ids, PDF)
+      - name: Verificar la versión práctica
         run: node scripts/verificar.mjs
+
+      - name: Verificar la versión completa
+        run: node version-completa/scripts/verificar.mjs
 
       - name: Preparar el sitio
         run: |
-          mkdir _site
+          mkdir -p _site/version-completa
           cp -r index.html assets guia _site/
+          cp -r version-completa/index.html version-completa/assets version-completa/guia _site/version-completa/
 
       - name: Configurar Pages
         uses: actions/configure-pages@v6

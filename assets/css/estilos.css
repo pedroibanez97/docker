@@ -1,5 +1,5 @@
 /* =====================================================================
-   Docker desde cero — estilos de la presentación
+   Docker desde cero (versión práctica) — estilos de la presentación
    Índice:
    1. Variables (tema claro / oscuro)
    2. Base
@@ -113,7 +113,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
-  font-size: clamp(16px, 0.85vw + 0.55vh, 25px);
+  font-size: clamp(17px, 0.95vw + 0.62vh, 28px);
   -webkit-text-size-adjust: 100%;
 }
 
@@ -126,7 +126,7 @@ body {
 }
 
 h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 0.5em; text-wrap: balance; }
-h2 { font-size: 1.75rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.95rem; letter-spacing: -0.01em; }
 h3 { font-size: 1.15rem; }
 h4 { font-size: 1rem; }
 p { margin: 0 0 0.7em; }
@@ -369,7 +369,7 @@ button { font: inherit; color: inherit; }
 .caja.dato { border-color: var(--texto-suave); }
 .caja.dato::before { content: "Para saber"; color: var(--texto-suave); }
 .caja.pregunta { border-color: var(--exito); }
-.caja.pregunta::before { content: "Pregunta para comprobar"; color: var(--exito); }
+.caja.pregunta::before { content: "Pregunta rápida"; color: var(--exito); }
 .caja.donde { border-color: var(--acento); background: var(--gris-suave); }
 .caja.donde::before { content: "Dónde se ejecuta"; color: var(--acento); }
 
@@ -897,3 +897,69 @@ body.vista-docente .docente {
 table.pequeno td code { white-space: normal; overflow-wrap: anywhere; }
 .captura { width: 100%; max-height: 52vh; object-fit: contain; object-position: left top; border: 1px solid var(--borde); border-radius: 12px; background: #fff; }
 .diagrama .d-mini { font-size: 11px; }
+
+/* ---------------------------------------------------------------------
+   Componentes de la versión práctica
+   --------------------------------------------------------------------- */
+/* Cada comando: dónde se ejecuta, qué hace y qué resultado esperar */
+.cmd { display: grid; gap: 0.45rem; margin-bottom: 1rem; }
+.cmd .codigo, .cmd .salida { margin: 0; }
+.linea { margin: 0; padding-left: 6.9rem; text-indent: -6.9rem; }
+.etq {
+  display: inline-block;
+  text-indent: 0;
+  margin-right: 0.6rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2em 0.6em;
+  border-radius: 6px;
+  min-width: 6.2rem;
+  text-align: center;
+}
+.etq--donde { background: var(--acento-suave); color: var(--acento-fuerte); }
+.etq--hace { background: var(--violeta-suave); color: var(--violeta); }
+.etq--resultado { background: var(--exito-suave); color: var(--exito); }
+
+/* Una idea grande en el centro de la diapositiva */
+.idea-grande {
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.3;
+  max-width: 54rem;
+  margin: 1.2rem 0 1.4rem;
+}
+.idea-grande em { font-style: normal; color: var(--acento); }
+
+/* Ruta de la clase */
+.ruta { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 0.8rem; }
+.ruta a { text-decoration: none; color: inherit; display: block; height: 100%; }
+.ruta .tarjeta { height: 100%; }
+.ruta .numero { font-size: 1.6rem; font-weight: 800; color: var(--acento); line-height: 1; }
+.ruta .tarjeta:hover { border-color: var(--acento); }
+
+/* Pasos grandes para instrucciones cortas */
+.pasos--grandes > li { font-size: 1.05rem; margin-bottom: 0.9rem; }
+.cmd > * { min-width: 0; }
+@media (max-width: 640px) {
+  .linea { padding-left: 0; text-indent: 0; }
+  .etq { min-width: 0; margin-bottom: 0.2rem; }
+  .idea-grande { font-size: 1.3rem; }
+}
+
+/* Impresión de la versión práctica: guía breve, los bloques siguen de corrido */
+@media print {
+  .slide--modulo {
+    break-before: auto;
+    break-inside: avoid;
+    break-after: avoid;
+    margin-top: 4mm;
+    padding-top: 4mm;
+    border-top: 2px solid var(--acento);
+  }
+  .slide--modulo h2 { font-size: 17pt; margin-bottom: 1mm; }
+  .slide--modulo .ficha-modulo { margin-top: 2mm; gap: 3mm; }
+  .idea-grande { font-size: 12.5pt; margin: 2mm 0 3mm; }
+  .ruta { grid-template-columns: repeat(5, 1fr); gap: 2mm; }
+}

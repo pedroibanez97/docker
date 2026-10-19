@@ -1,114 +1,95 @@
-# Práctica integradora · Dockerizar un proyecto propio
+# Práctica final · Dockerizá tu proyecto
 
-**Objetivo:** que tu aplicación se pueda levantar en cualquier computadora con Docker usando un solo comando, sin instalar Node.js ni MySQL a mano, sin exponer secretos y sin perder datos.
+**Objetivo:** que tu proyecto se levante en cualquier compu con:
 
-**Duración sugerida:** 2 a 4 horas de trabajo (puede continuar fuera de clase).
-**Modalidad:** individual o en parejas (cada integrante debe poder explicar todo).
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
 
----
+Tenés que poder **levantarlo**, **mostrar que funciona** y **explicar cómo se comunican sus partes**.
 
-## Elegí tu camino
+- **Con qué:** tu proyecto Express + MySQL (con o sin Angular). Si no podés usarlo, el [proyecto base](proyecto-base/).
+- **Tiempo:** 1 h 30 min a 3 h. Individual o en parejas.
+- **Prioridad:** primero backend + MySQL funcionando. Angular, si llegás.
 
-| Camino | Para quién | Punto de partida |
-|---|---|---|
-| **A · Proyecto propio** (recomendado) | Tenés un proyecto Express + MySQL (con o sin Angular) que funciona en tu compu | Tu repositorio actual, en una rama nueva: `git switch -c docker` |
-| **B · Proyecto base** | No tenés un proyecto adecuado o el tuyo tiene problemas que no podés resolver hoy | La API de biblioteca en [`proyecto-base/`](proyecto-base/) |
+## Paso a paso
 
-En los dos caminos se evalúa lo mismo. **No reescribas tu arquitectura**: Docker se agrega alrededor del proyecto; tus capas, rutas y buenas prácticas quedan como están.
+1. Creá una rama: `git switch -c docker`.
+2. Copiá `Dockerfile` y `.dockerignore` de [`ejemplo/backend`](../ejemplo/backend/) a la carpeta de tu backend.
+3. Copiá `compose.yaml` y `.env.example` de [`ejemplo`](../ejemplo/) a la raíz de tu proyecto.
+4. Poné tu script de tablas (`.sql`) en una carpeta `db/`.
+5. Adaptá tu código (ver abajo).
+6. `cp .env.example .env` y `docker compose up -d --build`.
+7. Probá tus endpoints y comprobá que los datos siguen después de `docker compose down` y `docker compose up -d`.
 
----
+## Adaptá tu código
 
-## Objetivos mínimos
+- **Conexión a MySQL:** reemplazá `'localhost'`, `'root'` y tu contraseña escritos a mano por `process.env.DB_HOST`, `process.env.DB_USER`, `process.env.DB_PASSWORD` y `process.env.DB_NAME`.
+- **Arranque:** en el `CMD` del Dockerfile poné tu archivo de entrada (por ejemplo `src/app.js`). El puerto de `app.listen` tiene que ser el de la **derecha** en `ports` del `compose.yaml`.
+- **compose.yaml:** revisá la carpeta de `build` (por ejemplo `./backend` o `./server`).
+- **Angular (opcional):** copiá `Dockerfile` y `nginx.conf` de [`ejemplo-con-angular/frontend`](../ejemplo-con-angular/frontend/), sumá el servicio `frontend` al compose y usá `/api` como URL de la API. Cambiá `dist/frontend/browser` por el nombre de tu proyecto Angular.
 
-1. Identificar los componentes y dependencias de la aplicación (versión de Node, base de datos, puertos, variables).
-2. Crear un `Dockerfile` para el backend.
-3. Crear la configuración de Compose (`compose.yaml`).
-4. Ejecutar MySQL en un servicio independiente (si el proyecto usa base de datos).
-5. Configurar variables de entorno sin exponer secretos (`.env` ignorado + `.env.example` versionado).
-6. Garantizar la persistencia de los datos con un volumen.
-7. Levantar el sistema completo con **un** comando.
-8. Comprobar que la aplicación funciona.
-9. Detener y volver a iniciar los servicios sin perder datos.
-10. Documentar cómo reproducir el entorno en otra computadora.
+## Explicá cómo se comunica
 
-El frontend Angular se dockeriza **solo si forma parte del proyecto y el tiempo alcanza**. Primero tiene que funcionar bien el conjunto backend + MySQL.
+En tu README (o en papel), dibujá tu proyecto y respondé:
 
----
-
-## Paso a paso sugerido (con puntos de control)
-
-1. **Relevamiento.** Completá esta tabla en tu README antes de escribir archivos de Docker:
-
-   | Componente | Tecnología y versión | Puerto | Variables que necesita |
-   |---|---|---|---|
-   | Backend | Node 24 + Express 5 | 3000 | `DB_HOST`, `DB_USER`, ... |
-   | Base de datos | MySQL 8.4 | 3306 | `MYSQL_DATABASE`, ... |
-
-2. **Configuración por variables.** Buscá en el código valores fijos (`localhost`, usuario, contraseña, puerto) y reemplazalos por `process.env.*`. Si usás `dotenv`, podés dejarlo: dentro del contenedor las variables llegan desde Compose.
-   ✅ *Control:* la app sigue funcionando sin Docker como antes.
-
-3. **Dockerfile + `.dockerignore`** del backend. Imagen base oficial con versión (`node:24-alpine` o la que pida tu proyecto), `npm ci`, usuario `node`.
-   ✅ *Control:* `docker build -t mi-backend:1.0 .` termina sin errores.
-
-4. **`compose.yaml`** con los servicios `db` y `backend`, un volumen con nombre, una red, `healthcheck` en la base y `depends_on` con `condition: service_healthy`. Los scripts SQL van en una carpeta montada en `/docker-entrypoint-initdb.d`.
-   ✅ *Control:* `docker compose up -d --build` y `docker compose ps` muestra `db (healthy)` y el backend `Up`.
-
-5. **Variables y secretos.** `.env` con tus valores (en `.gitignore`) y `.env.example` con valores de ejemplo y comentarios.
-   ✅ *Control:* `git status` no muestra `.env`.
-
-6. **Prueba funcional.** Probá tus endpoints principales desde el navegador, Postman, Thunder Client o `curl`.
-
-7. **Persistencia.** Creá un dato, ejecutá `docker compose down` y luego `docker compose up -d`. El dato tiene que seguir ahí.
-
-8. **README** siguiendo la [plantilla](PLANTILLA-README.md).
-   ✅ *Control final:* cloná tu repo en otra carpeta (o pedile a otra persona del curso que lo haga), seguí tu README al pie de la letra y verificá que funciona.
-
----
+1. ¿Qué dirección se abre en el navegador?
+2. ¿Cómo llega una petición al backend?
+3. ¿Con qué host y puerto se conecta el backend a MySQL? ¿Por qué no `localhost`?
+4. ¿Dónde se guardan los datos y qué pasa con ellos si hacés `docker compose down`?
 
 ## Entregables
 
-- Enlace al repositorio (rama `docker` o `main`) con el código actualizado.
-- `Dockerfile` del backend (y del frontend, si corresponde) y `compose.yaml`.
-- `.dockerignore` y `.env.example`.
-- `README.md` con instrucciones de ejecución (ver plantilla).
-- **Evidencia de funcionamiento:** captura o salida de terminal de `docker compose ps` y de una respuesta de la API (o de la app en el navegador).
-- **Breve explicación de la arquitectura:** qué servicios hay, cómo se comunican, qué puertos se publican y por qué.
-- **Demostración de persistencia:** evidencia de un dato creado antes de `docker compose down` que sigue existiendo después de `docker compose up -d`.
+- Enlace al repositorio con `Dockerfile`, `compose.yaml`, `.dockerignore` y `.env.example`.
+- README con los comandos para levantarlo y la explicación de cómo se comunica.
+- Evidencia: captura o salida de `docker compose ps` y de una respuesta de tu API (sin contraseñas a la vista).
 
----
+## Antes de entregar
 
-## Rúbrica de evaluación (100 puntos)
+- [ ] Se levanta con `docker compose up -d --build`.
+- [ ] Los endpoints principales responden.
+- [ ] Un dato creado sigue después de `docker compose down` y `docker compose up -d`.
+- [ ] El `.env` **no** está en GitHub; `.env.example` sí.
+- [ ] El README dice cómo levantarlo.
+- [ ] Podés explicar cómo se comunican las partes.
 
-| Criterio | Puntos | Insuficiente | Suficiente | Muy bueno |
-|---|---|---|---|---|
-| **Comprensión y arquitectura** | 20 | No puede explicar qué hace cada servicio ni la diferencia entre imagen y contenedor. | Explica los servicios, la red y los puertos con ayuda. | Explica con precisión la arquitectura, por qué el backend usa el nombre del servicio y qué pasaría con `down -v`. |
-| **Funcionamiento** | 25 | No levanta, o levanta pero la API no conecta con la base. | Levanta con un comando y los endpoints principales responden. | Además maneja la espera a la base (healthcheck), muestra errores claros y el frontend funciona si existe. |
-| **Configuración Docker** | 20 | Dockerfile copia `node_modules`, usa `latest` o no hay `.dockerignore`. | Imagen oficial con versión, `npm ci`, `.dockerignore`, Compose con red y volumen. | Además aprovecha la caché (dependencias antes que el código), usuario no root, nombres claros y sin configuración innecesaria. |
-| **Persistencia** | 10 | Los datos se pierden al recrear los contenedores. | Volumen con nombre y demostración de persistencia. | Además incluye scripts de inicialización y una copia de seguridad probada. |
-| **Seguridad básica** | 15 | Hay contraseñas reales o `.env` en el repositorio. | `.env` ignorado, `.env.example` sin secretos reales, la app no usa el usuario `root`. | Además la base no se publica o se publica solo en `127.0.0.1`, y el README explica cómo generar claves. |
-| **Documentación** | 10 | No hay README o no permite reproducir el entorno. | README con requisitos, pasos para levantar, puertos y variables. | Además incluye la evidencia, la explicación de la arquitectura y problemas frecuentes con su solución. |
+## Qué se evalúa
 
-### Criterios de aprobación
+| Criterio | Qué se mira |
+|---|---|
+| **Funciona** | Levanta con un comando y responde. |
+| **Datos** | No se pierden al recrear los contenedores. |
+| **Claves** | Están en `.env`, fuera de GitHub. |
+| **Explicación** | Cómo se comunican navegador, backend y base (y frontend si hay). |
 
-- **60 puntos o más**, y
-- al menos **Suficiente** en *Funcionamiento*, *Persistencia* y *Seguridad básica*, y
-- ningún error bloqueante.
+La prueba final: que otra persona clone tu repositorio y lo levante siguiendo solo tu README.
 
-### Errores que impiden considerar terminada la actividad
+## Plantilla de README
 
-- El sistema **no levanta** siguiendo el README en una copia limpia del repositorio.
-- Hay **secretos reales** (contraseñas, tokens, claves) o el archivo **`.env`** subido al repositorio, en cualquier commit.
-- El backend **no se conecta** a MySQL (por ejemplo, porque usa `localhost` dentro de Compose).
-- Los **datos se pierden** al ejecutar `docker compose down` seguido de `docker compose up -d`.
-- No hay README o falta la **evidencia** pedida.
-- La persona que entrega **no puede explicar** su `Dockerfile` ni su `compose.yaml`.
+````markdown
+# Nombre del proyecto
 
-> Si subiste un secreto por error: cambiá esa contraseña de inmediato. Borrar el archivo en un commit nuevo no alcanza, porque sigue en el historial.
+## Cómo levantarlo
 
----
+Requisito: Docker Desktop (o Docker Engine en Linux).
 
-## Para quienes terminan antes (opcional)
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
 
-- Dockerizar el frontend Angular con Nginx y proxy de `/api` (ver ejemplo 03).
-- Agregar un `compose.prod.yaml` que use imágenes con etiqueta de versión y no publique la base.
-- Documentar y probar una copia de seguridad y su restauración.
+- API: http://localhost:3000
+- Base de datos (Workbench): 127.0.0.1:3307
+
+## Cómo se comunica
+
+Navegador → backend (puerto 3000) → MySQL (`db:3306`, por la red de Docker).
+Los datos se guardan en el volumen `datos-mysql`.
+
+## Cómo detenerlo
+
+```bash
+docker compose down
+```
+````

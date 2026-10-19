@@ -1,5 +1,5 @@
 /* =====================================================================
-   Docker desde cero — motor de la presentación (sin dependencias)
+   Docker desde cero (versión práctica) — motor de la presentación (sin dependencias)
    - Navegación por teclado, botones y gestos; progreso; índice
    - Notas docentes y vista del docente sincronizada (segunda ventana)
    - Resaltado de código, botón copiar, pestañas, respuestas y cuestionario
@@ -46,8 +46,8 @@
       const meta = document.createElement('div');
       meta.className = 'slide__meta';
       const tipo = slide.dataset.tipo || 'explicacion';
-      const nombres = { explicacion: 'Explicación', demo: 'Demo del docente', actividad: 'Actividad', solucion: 'Solución', repaso: 'Repaso' };
-      const etiquetaModulo = esNumerado(modulo) ? `Módulo ${modulo.numero} · ${modulo.titulo}` : modulo.titulo;
+      const nombres = { explicacion: 'Idea', demo: 'Demo', actividad: 'Hacelo vos', solucion: 'Solución', repaso: 'Repaso' };
+      const etiquetaModulo = esNumerado(modulo) ? `Bloque ${modulo.numero} · ${modulo.titulo}` : modulo.titulo;
       meta.innerHTML = `<span class="tipo tipo--${tipo}">${nombres[tipo] || tipo}</span><span class="slide__modulo">${escapar(etiquetaModulo)}</span>`;
       slide.prepend(meta);
     }
@@ -321,7 +321,7 @@
     if (contador) contador.textContent = `${n + 1} / ${slides.length}`;
     if (ubicacion) {
       const m = slide.modulo;
-      const etiqueta = esNumerado(m) ? `Módulo ${m.numero}` : (m ? m.titulo : '');
+      const etiqueta = esNumerado(m) ? `Bloque ${m.numero}` : (m ? m.titulo : '');
       ubicacion.innerHTML = `<strong>${escapar(etiqueta)}</strong>${etiqueta ? ' · ' : ''}${escapar(slide.titulo)}`;
     }
     if (listaIndice) {
@@ -447,14 +447,14 @@
     vista.querySelector('[data-docente="titulo"]').textContent = slide.titulo;
     vista.querySelector('[data-docente="posicion"]').textContent = `${actual + 1} / ${slides.length}`;
     vista.querySelector('[data-docente="modulo"]').textContent = slide.modulo
-      ? `${esNumerado(slide.modulo) ? `Módulo ${slide.modulo.numero} · ` : ''}${slide.modulo.titulo}${slide.modulo.tiempo ? ` (⏱ ${slide.modulo.tiempo})` : ''}`
+      ? `${esNumerado(slide.modulo) ? `Bloque ${slide.modulo.numero} · ` : ''}${slide.modulo.titulo}${slide.modulo.tiempo ? ` (⏱ ${slide.modulo.tiempo})` : ''}`
       : '';
     vista.querySelector('[data-docente="notas"]').innerHTML = notas
       ? notas.outerHTML
       : '<p class="suave">Esta diapositiva no tiene notas. Seguí el contenido en pantalla.</p>';
     vista.querySelector('[data-docente="siguiente"]').textContent = proxima ? proxima.titulo : '— Fin de la presentación —';
     const tipo = slide.dataset.tipo || (slide.classList.contains('slide--modulo') ? 'inicio de módulo' : 'explicacion');
-    vista.querySelector('[data-docente="tipo"]').textContent = { explicacion: 'Explicación', demo: 'Demo del docente', actividad: 'Actividad de los alumnos', solucion: 'Solución', repaso: 'Repaso' }[tipo] || tipo;
+    vista.querySelector('[data-docente="tipo"]').textContent = { explicacion: 'Idea', demo: 'Demo del docente', actividad: 'Hacelo vos (alumnos)', solucion: 'Solución', repaso: 'Repaso' }[tipo] || tipo;
   }
 
   function relojes() {
@@ -483,17 +483,17 @@
   if (params.has('notas')) cuerpo.classList.add('imprimir-notas', 'mostrar-notas');
   const presentacion = document.querySelector('.presentacion');
   if (presentacion) {
-    const edicion = params.has('notas') ? 'Guía del docente (incluye notas de exposición)' : 'Guía de estudio';
+    const edicion = params.has('notas') ? 'Guía del docente (incluye notas)' : 'Guía de estudio';
     const dibujo = document.querySelector('.portada__dibujo')?.outerHTML ?? '';
     const portadaImpresa = document.createElement('section');
     portadaImpresa.className = 'solo-impresion portada-impresion';
     portadaImpresa.innerHTML = `
       <div class="sello">Técnico Universitario en Programación</div>
       <h1>Docker desde cero</h1>
-      <div class="subtitulo">Guía práctica para programadores</div>
+      <div class="subtitulo">Lo esencial para dockerizar tus proyectos</div>
       ${dibujo}
       <p><strong>${edicion}</strong></p>
-      <p>Del problema de “en mi computadora funciona” al deploy: imágenes, contenedores, Dockerfile, Compose, MySQL, Angular + Express y diagnóstico de errores.</p>
+      <p>Qué es Docker, imágenes y contenedores, Dockerfile, Docker Compose, puertos, variables de entorno, datos de MySQL que no se pierden y cómo sumar Angular. Con los comandos y archivos listos para usar.</p>
       <div class="datos sin-url">
         <p>${escapar(cuerpo.dataset.version || '')}</p>
         <p>Presentación interactiva: ${escapar(cuerpo.dataset.urlPublica || '')}<br>
@@ -505,7 +505,7 @@
     indiceImpreso.innerHTML = `<h2>Índice</h2><ol>${modulos.map((m) => {
       const visibles = m.slides.filter((s) => !s.classList.contains('portada'));
       if (!visibles.length) return '';
-      const titulo = esNumerado(m) ? `Módulo ${m.numero}. ${m.titulo}` : m.titulo;
+      const titulo = esNumerado(m) ? `Bloque ${m.numero}. ${m.titulo}` : m.titulo;
       const items = visibles.filter((s) => !s.classList.contains('slide--modulo'))
         .map((s) => `<li><a href="#${s.id}">${escapar(s.titulo)}</a></li>`).join('');
       return `<li><a href="#${visibles[0].id}">${escapar(titulo)}</a>${items ? `<ol>${items}</ol>` : ''}</li>`;

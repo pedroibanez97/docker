@@ -18,6 +18,7 @@ import { sincronizar } from './sincronizar-codigo.mjs';
 const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const html = readFileSync(resolve(raiz, 'index.html'), 'utf8');
 // Para buscar enlaces se ignora el contenido de los bloques de código
+// (version-completa/ tiene su propia verificación: version-completa/scripts/verificar.mjs)
 const sinCodigo = html.replace(/<pre\b[\s\S]*?<\/pre>/g, '');
 const errores = [];
 const ok = (mensaje) => console.log(`✓ ${mensaje}`);
@@ -61,7 +62,7 @@ try {
 }
 
 // 5. PDF
-for (const pdf of ['guia/docker-desde-cero-guia-de-estudio.pdf', 'guia/docker-desde-cero-guia-docente.pdf']) {
+for (const pdf of ['guia/docker-desde-cero-guia-de-estudio.pdf']) {
   if (!existsSync(resolve(raiz, pdf))) errores.push(`Falta el PDF: ${pdf} (ejecutá scripts/generar-pdf.sh)`);
 }
 if (!errores.some((e) => e.startsWith('Falta el PDF'))) ok('PDF de la guía presentes');

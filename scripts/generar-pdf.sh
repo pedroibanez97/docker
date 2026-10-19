@@ -5,8 +5,7 @@
 #   CHROME="/ruta/al/navegador" ./scripts/generar-pdf.sh   # si no lo encuentra solo
 #
 # Resultado:
-#   guia/docker-desde-cero-guia-de-estudio.pdf   (sin notas del docente)
-#   guia/docker-desde-cero-guia-docente.pdf      (con notas del docente: index.html?notas=1)
+#   guia/docker-desde-cero-guia-de-estudio.pdf   (guía de estudio, sin notas del docente)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -47,4 +46,3 @@ generar() { # $1 = archivo de salida · $2 = parámetros de la URL
 }
 
 generar guia/docker-desde-cero-guia-de-estudio.pdf ""
-generar guia/docker-desde-cero-guia-docente.pdf "?notas=1"
